@@ -19,7 +19,9 @@ export default function App() {
     <Fab
       size="medium"
       aria-label="Github"
-      href="https://github.com/minimal-ui-kit/material-kit-react"
+      component="a"
+      target='_blank'
+      href="https://github.com/adeshsinghbits/studentrecord"
       sx={{
         zIndex: 9,
         right: 20,
