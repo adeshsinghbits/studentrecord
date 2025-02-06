@@ -96,7 +96,7 @@ export function StudentView() {
   const handleDeleteStudent = async (id: string) => {
     try {
       await deleteDoc(doc(db, 'students', id));
-      alert("dkkj")
+      alert("delete successfully")
       setStudents((prev) => prev.filter((studentdata) => studentdata.id !== id));
       table.onResetPage();
       setIsUploading(false);
