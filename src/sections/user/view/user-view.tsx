@@ -1,5 +1,5 @@
 import{ useState, useEffect, useCallback,useId } from 'react';
-import { collection, getDocs, addDoc, deleteDoc, doc} from 'firebase/firestore';
+import { collection, getDocs, setDoc, deleteDoc, doc} from 'firebase/firestore';
 
 import { onAuthStateChanged } from 'firebase/auth';
 
@@ -15,7 +15,7 @@ import TableContainer from '@mui/material/TableContainer';
 import TablePagination from '@mui/material/TablePagination';
 import TextField from '@mui/material/TextField';
 import Modal from '@mui/material/Modal';
-import { CircularProgress } from '@mui/material';
+import {MenuItem, Select, CircularProgress, InputLabel, FormControl } from '@mui/material';
 
 import { DashboardContent } from 'src/layouts/dashboard';
 
@@ -40,16 +40,19 @@ export function StudentView() {
   const [filterName, setFilterName] = useState('');
   const [openModal, setOpenModal] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
-  const randomPart = Math.floor(1000 + Math.random() * 9000)
   const [newStudent, setNewStudent] = useState<StudentProps>({
-    id:`${table.orderBy}-${table.order}-${table.page}-${randomPart}`,
+    id:'',
     name: '',
     class: '',
     rollno: 0,
     section: '',
     email: '',
     age: 0,
+    Gender:'',
     phone: 1234567890,
+    fatherName: '',
+    motherName: '',
+    bloodGroup:'',
     address: '',
   });
 
@@ -72,16 +75,28 @@ export function StudentView() {
   const handleAddStudent = async () => {
     try {
       setIsUploading(true);
-      await addDoc(collection(db, 'students'), newStudent);
-      setStudents((prev) => [...prev, { ...newStudent }]);
+  
+      // Create a reference with an auto-generated ID
+      const docRef = doc(collection(db, 'students'));
+  
+      // Set the student data, explicitly including the ID
+      await setDoc(docRef, { ...newStudent, id: docRef.id });
+  
+      // Update local state with the new student
+      setStudents((prev) => [...prev, { ...newStudent, id: docRef.id }]);
       setOpenModal(false);
     } catch (error) {
-      console.error('Error adding student:', error);
+      console.error("Error adding student:", error);
+    } finally {
+      setIsUploading(false);
     }
   };
+  
+
   const handleDeleteStudent = async (id: string) => {
     try {
       await deleteDoc(doc(db, 'students', id));
+      alert("dkkj")
       setStudents((prev) => prev.filter((studentdata) => studentdata.id !== id));
       table.onResetPage();
       setIsUploading(false);
@@ -89,6 +104,7 @@ export function StudentView() {
       console.error('Error deleting student:', error);
     }
   };
+  
 
   const dataFiltered: StudentProps[] = applyFilter({
     inputData: students,
@@ -168,7 +184,11 @@ export function StudentView() {
                   { id: 'section', label: 'Section' },
                   { id: 'email', label: 'Email' },
                   { id: 'age', label: 'Age' },
+                  { id: 'Gender', label: 'Gender' },
                   { id: 'phone', label: 'phone' },
+                  { id: 'fatherName', label: 'father\'s Name' },
+                  { id: 'motherName', label: 'Mother\'s Name' },
+                  { id: 'bloodGroup', label: 'bloodGroup' },
                   { id: 'address', label: 'Address' },
                 ]}
               />
@@ -215,9 +235,10 @@ export function StudentView() {
       <Box component="form" onSubmit={handleAddStudent} 
          sx={{
           position: 'absolute',
-          top: '50%',
-          left: '50%',
-          right: '10%',
+          top: '70%',
+          left: '35%',
+          right: '5%',
+          height:1000,
           transform: 'translate(-50%, -50%)',
           bgcolor: 'background.paper',
           p: 4,
@@ -232,41 +253,54 @@ export function StudentView() {
         onChange={(e) => setNewStudent({ ...newStudent, name: e.target.value })}
         required
       />
-      <TextField
-        label="Class"
-        name="class"
-        value={newStudent.class}
-        onChange={(e) => setNewStudent({ ...newStudent, class: e.target.value })}
-        required
-      />
-      <TextField
-        label="Roll No"
-        name="rollno"
-        type="number"
-        value={newStudent.rollno}
-        onChange={(e) => setNewStudent({ ...newStudent, rollno: Number(e.target.value) })}
-        required
-      />
-      <TextField
-        label="Section"
-        name="section"
-        value={newStudent.section}
-        onChange={(e) => setNewStudent({ ...newStudent, section: e.target.value })}
-        required
-      />
+      <Box>
+        <TextField
+          label="Class"
+          name="class"
+          value={newStudent.class}
+          onChange={(e) => setNewStudent({ ...newStudent, class: e.target.value })}
+          required
+        />
+        <TextField
+          label="Roll No"
+          name="rollno"
+          type="number"
+          value={newStudent.rollno}
+          onChange={(e) => setNewStudent({ ...newStudent, rollno: Number(e.target.value) })}
+          required
+        />
+        <TextField
+          label="Section"
+          name="section"
+          value={newStudent.section}
+          onChange={(e) => setNewStudent({ ...newStudent, section: e.target.value })}
+          required
+        />
+        <TextField
+          label="Age"
+          name="age"
+          type="number"
+          value={newStudent.age}
+          onChange={(e) => setNewStudent({ ...newStudent, age: Number(e.target.value) })}
+          required
+        />
+      </Box>
+        <FormControl fullWidth>
+        <InputLabel>Gender</InputLabel>
+        <Select 
+          value={newStudent.Gender} 
+          onChange={(e) => setNewStudent({ ...newStudent, Gender: e.target.value })}
+          label="Gender">
+          <MenuItem value="male">Male</MenuItem>
+          <MenuItem value="female">Female</MenuItem>
+          <MenuItem value="other">Other</MenuItem>
+        </Select>
+      </FormControl>
       <TextField
         label="Email"
         name="email"
         value={newStudent.email}
         onChange={(e) => setNewStudent({ ...newStudent, email: e.target.value })}
-        required
-      />
-      <TextField
-        label="Age"
-        name="age"
-        type="number"
-        value={newStudent.age}
-        onChange={(e) => setNewStudent({ ...newStudent, age: Number(e.target.value) })}
         required
       />
       <TextField
@@ -277,6 +311,38 @@ export function StudentView() {
         onChange={(e) => setNewStudent({ ...newStudent, phone: Number(e.target.value) })}
         required
       />
+      <TextField
+        label="Father's Name"
+        name="FatherName"
+        type="text"
+        value={newStudent.fatherName}
+        onChange={(e) => setNewStudent({ ...newStudent, fatherName: e.target.value })}
+        required
+      />
+      <TextField
+        label="Mother's Name"
+        name="MotherName"
+        type="text"
+        value={newStudent.motherName}
+        onChange={(e) => setNewStudent({ ...newStudent, motherName: e.target.value })}
+        required
+      />
+      <FormControl fullWidth>
+        <InputLabel>bloodGroup</InputLabel>
+        <Select 
+          value={newStudent.bloodGroup} 
+          onChange={(e) => setNewStudent({ ...newStudent, bloodGroup: e.target.value })}
+          label="bloodGroup">
+          <MenuItem value="A+">A+</MenuItem>
+          <MenuItem value="A-">A-</MenuItem>
+          <MenuItem value="B+">B+</MenuItem>
+          <MenuItem value="B-">B-</MenuItem>
+          <MenuItem value="AB+">AB+</MenuItem>
+          <MenuItem value="AB-">AB-</MenuItem>
+          <MenuItem value="O+">O+</MenuItem>
+          <MenuItem value="O-">O-</MenuItem>
+        </Select>
+      </FormControl>
       <TextField
         label="Address"
         name="address"

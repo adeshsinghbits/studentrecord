@@ -20,7 +20,11 @@ export type StudentProps = {
   section: string;
   email: string;
   age: number;
+  Gender:string;
   phone: number;
+  fatherName:string;
+  motherName:string;
+  bloodGroup:string;
   address: string;
 };
 
@@ -58,14 +62,18 @@ export function StudentTableRow({ row, selected, onSelectRow, onDeleteRow }: Use
         <TableCell padding="checkbox">
           <Checkbox disableRipple checked={selected} onChange={onSelectRow} />
         </TableCell>
-        <TableCell>{row.id}</TableCell>
+        <TableCell  sx={{width:40}}>{row.id}</TableCell>
         <TableCell component="th" scope="row">{row.name}</TableCell>
         <TableCell>{row.class}</TableCell>
         <TableCell>{row.rollno}</TableCell>
         <TableCell>{row.section}</TableCell>
         <TableCell>{row.email}</TableCell>
         <TableCell>{row.age}</TableCell>
+        <TableCell>{row.Gender}</TableCell>
         <TableCell>{row.phone}</TableCell>
+        <TableCell>{row.fatherName}</TableCell>
+        <TableCell>{row.motherName}</TableCell>
+        <TableCell>{row.bloodGroup}</TableCell>
         <TableCell>{row.address}</TableCell>
 
         <TableCell align="right">
@@ -98,10 +106,6 @@ export function StudentTableRow({ row, selected, onSelectRow, onDeleteRow }: Use
             },
           }}
         >
-          <MenuItem onClick={handleClosePopover}>
-            <Iconify icon="solar:pen-bold" />
-            Edit
-          </MenuItem>
 
           <MenuItem
             onClick={() => {
